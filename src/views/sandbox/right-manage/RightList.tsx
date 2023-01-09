@@ -1,12 +1,13 @@
 import React, {useEffect, useState} from 'react';
-import {Button, Table, Tag, Modal, message} from "antd";
+import {Button, Table, Tag, Modal, message, Popover, Switch} from "antd";
 import {
     DeleteOutlined,
     EditOutlined,
     ExclamationCircleFilled
 } from '@ant-design/icons';
+import {deleteRole, getMenu, updateRole} from "../../../api/default";
+import {closeMessage, openMessage} from '../../../utils/message';
 
-import {deleteRole, getMenu} from "../../../api/default";
 
 const RightList = () => {
     const [dataSource, setDataSource] = useState<[]>([]);
@@ -29,10 +30,27 @@ const RightList = () => {
         },
         {
             title: '操作',
-            render: (item: object) => {
+            render: (item: any) => {
                 return <div>
                     <Button danger shape="circle" icon={<DeleteOutlined/>} onClick={confirmMethod(item)}></Button>
-                    <Button style={{marginLeft: "5px"}} type="primary" shape="circle" icon={<EditOutlined/>}></Button>
+                    <Popover style={{textAlign: "center"}}
+                             content={
+                                 <Switch checked={item.pagepermisson === 1}
+                                         loading={updateFlag}
+                                         onChange={permissionChange(item)}></Switch>
+                             }
+                             title="更新路由配置"
+
+                             trigger={item.pagepermisson !== undefined ? "click" : ""}
+                    >
+                        <Button style={{marginLeft: "5px"}}
+                                type="primary"
+                                shape="circle"
+                                disabled={item.pagepermisson === undefined}
+                                icon={<EditOutlined/>}>
+
+                        </Button>
+                    </Popover>
                 </div>
             }
         }
@@ -41,7 +59,6 @@ const RightList = () => {
 
     useEffect(() => {
         getMenu({"_embed": "children"}).then((res: any) => {
-            console.log(res);
             let b = res.map((v: { children: string | any[] }) => {
                 return v.children.length === 0 ? {...v, children: undefined} : v;
             })
@@ -71,13 +88,14 @@ const RightList = () => {
         } else {
             url = `children/${v.id}`;
         }
-        openMessage();
+        openMessage({messageApi});
         let t = filterId(dataSource, v.id)
-        setDataSource(t as []);
-        deleteRole(url).then((res: any) => {
-            console.log("res ==>", res)
-
-            closeMessage();
+        deleteRole(url).then( ()=> {
+            closeMessage({
+                messageApi, fn: () => {
+                    setDataSource(t as []);
+                }
+            });
         })
     }
     //过滤ID相同的元素
@@ -97,30 +115,32 @@ const RightList = () => {
         return res.length === 0 ? undefined : res;
     }
 
+    //更新加载的标识
+    const [updateFlag, setUpdateFlag] = useState<boolean>(false);
+    //更新权限配置
+    const permissionChange = (item: any) => {
+        return () => {
+            setUpdateFlag(true)
+            //由于引用类型可以直接改
+            item.pagepermisson = item.pagepermisson === 1 ? 0 : 1
+            setDataSource([...dataSource])
+            //更新数据库
+            let url: string = "";
+            if (item.grade === 1) {
+                url = `rights/${item.id}`;
+            } else {
+                url = `children/${item.id}`;
+            }
+            updateRole(url, {pagepermisson: item.pagepermisson}).then((res: any) => {
+                setTimeout(() => {
+                    setUpdateFlag(false)
+                }, 1500)
+            })
+        }
+    }
+
+
     const [messageApi, contextHolder] = message.useMessage();
-    const key = 'updatable';
-
-    //开启加载
-    const openMessage = () => {
-        messageApi.open({
-            key,
-            type: 'loading',
-            content: '加载中...',
-            duration: 0
-        });
-    }
-    //关闭加载
-    const closeMessage = () => {
-        setTimeout(()=>{
-            messageApi.open({
-                key,
-                type: 'success',
-                content: '删除成功',
-                duration: 2,
-            });
-        },1500)
-    }
-
 
     return (
         <div className="right_list">

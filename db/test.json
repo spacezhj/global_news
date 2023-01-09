@@ -3,7 +3,7 @@
     {
       "id": 1,
       "username": "admin",
-      "password": 123456,
+      "password": "123456",
       "roleState": true,
       "default": true,
       "region": "",
@@ -11,7 +11,7 @@
     },
     {
       "username": "铁锤",
-      "password": "123",
+      "password": "1234",
       "roleState": true,
       "default": false,
       "region": "亚洲",
@@ -20,11 +20,11 @@
     },
     {
       "username": "钢蛋",
-      "password": "123",
+      "password": "1234",
       "roleState": true,
       "default": false,
       "region": "南极洲",
-      "roleId": 2,
+      "roleId": 3,
       "id": 3
     },
     {
@@ -80,6 +80,15 @@
       "roleState": true,
       "default": false,
       "id": 9
+    },
+    {
+      "username": "test",
+      "password": "1234",
+      "region": "南极洲",
+      "roleId": 3,
+      "roleState": true,
+      "default": false,
+      "id": 10
     }
   ],
   "roles": [

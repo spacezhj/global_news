@@ -1,22 +1,20 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Layout, theme, MenuProps, Dropdown} from "antd";
 import {
     MenuFoldOutlined,
     MenuUnfoldOutlined
 } from '@ant-design/icons';
-import { Outlet, useNavigate} from "react-router";
+import {Outlet, useNavigate} from "react-router";
 import {DownOutlined} from '@ant-design/icons';
 
 const {Header, Content} = Layout;
 
-// const onClick: MenuProps['onClick'] = ({key}) => {
-//     message.info(`Click on item ${key}`);
-// };
 
 
 const TopHeader = (props: any) => {
     const [collapsed, setCollapsed] = useState(false);
     const {token: {colorBgContainer},} = theme.useToken();
+    const [userInfo, setUserInfo] = useState<any>({});
     let navigate = useNavigate();
     //侧边栏切换
     const toggle = (): void => {
@@ -27,12 +25,14 @@ const TopHeader = (props: any) => {
     //退出功能
     const exit = (e: any) => {
         console.log("退出了")
+        localStorage.removeItem("userInfo")
+        localStorage.removeItem("token")
         navigate("/login")
     }
 
     const items: MenuProps['items'] = [
         {
-            label: '管理员',
+            label: userInfo?.role?.roleName,
             key: '1',
         },
         {
@@ -41,6 +41,9 @@ const TopHeader = (props: any) => {
         },
 
     ];
+    useEffect(() => {
+        setUserInfo(JSON.parse(localStorage.getItem("userInfo") || "{}"))
+    }, []);
 
 
     return (
@@ -51,7 +54,7 @@ const TopHeader = (props: any) => {
                     onClick: toggle,
                 })}
                 <div className="func">
-                    <span style={{marginRight:"10px"}}>欢迎回来admin</span>
+                    <span style={{marginRight: "10px"}}>欢迎回来 <b style={{color:"red"}}>{userInfo?.username}</b></span>
                     <Dropdown menu={{items}}>
                         <DownOutlined/>
                     </Dropdown>
@@ -59,9 +62,9 @@ const TopHeader = (props: any) => {
 
             </Header>
             <Content className="content"
-                style={{
-                    background: colorBgContainer,
-                }}
+                     style={{
+                         background: colorBgContainer,
+                     }}
             >
                 <Outlet></Outlet>
             </Content>
@@ -69,4 +72,4 @@ const TopHeader = (props: any) => {
     );
 };
 
-export default TopHeader;
+export default TopHeader

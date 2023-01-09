@@ -12,7 +12,6 @@ import {getMenu} from "../../api/default";
 
 
 //定义菜单
-
 const data: Array<object> = [
     {
         key: "/home",
@@ -49,8 +48,7 @@ const data: Array<object> = [
         ]
     }
 ]
-// @ts-ignore
-console.log(generateMenu(data));
+
 
 const SideMenu = (props: any) => {
     const [menuData, setMenuData] = useState<Array<any>>([]);
@@ -58,9 +56,11 @@ const SideMenu = (props: any) => {
     //默认选中的菜单
     const [openKeys, setOpenKeys] = useState<string[]>(["/home"]);
     //获取一级路由
-    const rootSubmenu = rootSubmenuKeys(data);
+    // const rootSubmenu = rootSubmenuKeys(data);
+    const [rootSubmenu,setRootSubmenu] =useState<Array<any>>([]);
     //点击一级菜单，其它管理菜单收起
     const onOpenChange: MenuProps['onOpenChange'] = (keys) => {
+
         const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1);
         if (rootSubmenu.indexOf(latestOpenKey!) === -1) {
             setOpenKeys(keys);
@@ -71,6 +71,8 @@ const SideMenu = (props: any) => {
     // 挂载后获取菜单数据
     useEffect(() => {
         getMenu({"_embed":"children"}).then(res=>{
+            console.log("menu----",rootSubmenuKeys(res as any))
+            setRootSubmenu(rootSubmenuKeys(res as any));
             setMenuData(generateMenu(res));
         })
     }, []);

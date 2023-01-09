@@ -1,13 +1,15 @@
 import './App.css';
 import {useRoutes} from "react-router-dom";
-import {yi} from "./router";
+import {UseMenu} from "./router";
 import 'antd/dist/reset.css';
 
-function App() {
-    const el = useRoutes(yi);
+const App = () => {
+    // @ts-ignore
+    const el = useRoutes(UseMenu());
+    // console.log(UseMenu())
     return (
         <div className="App">
-                {el}
+            {el}
         </div>
     );
 }
